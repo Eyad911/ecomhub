@@ -1,0 +1,72 @@
+version: "2.5"
+services:
+  redis:
+    restart: always
+    image: redis:5
+    ports:
+      - "6379:6379"
+    networks:
+      - db-net
+
+  db:
+    restart: always
+    
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+
+  backend:
+    restart: always
+    container_name: code1
+    
+    build: 
+      context: ./backend/
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+      - media:/app/api/media/store/images/
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - db
+
+  
+  frontend:
+    restart: always
+   
+    command :  npm start
+    container_name: frontend
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    volumes:
+      - /frontend/node_modules
+      - ./frontend:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      - REACT_NATIVE_PACKAGER_HOSTNAME=192.168.0.236 
+    ports:
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+
+    stdin_open: true
+    depends_on:
+      - backend
+    networks:
+      - db-net
+
+networks:
+  db-net:
+    driver: bridge
+volumes:
+  postgres_data:
+  media:
