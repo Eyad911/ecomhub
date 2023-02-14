@@ -13,7 +13,7 @@ import Appnavigator from "./app/navigation/Appnavigator";
 import OfflineNotice from "./app/components/OfflineNotice";
 import AuthContext from "./app/auth/context";
 import authStorage from "./app/auth/storage";
-import FlashMessage from "react-native-flash-message";
+import FlashMessage from "react-native-flash-message"
 
 export default function App() {
   const [user, setUser] = useState();
